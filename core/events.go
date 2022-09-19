@@ -216,6 +216,11 @@ type CollectionUpdateEvent struct {
 	Collection  *models.Collection
 }
 
+type CollectionTruncateEvent struct {
+	HttpContext echo.Context
+	Collection  *models.Collection
+}
+
 type CollectionDeleteEvent struct {
 	HttpContext echo.Context
 	Collection  *models.Collection

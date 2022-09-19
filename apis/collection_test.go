@@ -443,6 +443,51 @@ func TestCollectionUpdate(t *testing.T) {
 	}
 }
 
+func TestCollectionTruncate(t *testing.T) {
+	scenarios := []tests.ApiScenario{
+		{
+			Name:            "unauthorized",
+			Method:          http.MethodPatch,
+			Url:             "/api/collections/demo",
+			ExpectedStatus:  401,
+			ExpectedContent: []string{`"data":{}`},
+		},
+		{
+			Name:   "authorized as user",
+			Method: http.MethodPatch,
+			Url:    "/api/collections/demo",
+			RequestHeaders: map[string]string{
+				"Authorization": "User eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRkMDE5N2NjLTJiNGEtM2Y4My1hMjZiLWQ3N2JjODQyM2QzYyIsInR5cGUiOiJ1c2VyIiwiZXhwIjoxODkzNDc0MDAwfQ.Wq5ac1q1f5WntIzEngXk22ydMj-eFgvfSRg7dhmPKic",
+			},
+			ExpectedStatus:  401,
+			ExpectedContent: []string{`"data":{}`},
+		},
+		{
+			Name:   "authorized as admin + empty data",
+			Method: http.MethodPatch,
+			Url:    "/api/collections/demo/truncate",
+			Body:   strings.NewReader(``),
+			RequestHeaders: map[string]string{
+				"Authorization": "Admin eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJiNGE5N2NjLTNmODMtNGQwMS1hMjZiLTNkNzdiYzg0MmQzYyIsInR5cGUiOiJhZG1pbiIsImV4cCI6MTg3MzQ2Mjc5Mn0.AtRtXR6FHBrCUGkj5OffhmxLbSZaQ4L_Qgw4gfoHyfo",
+			},
+			ExpectedStatus: 200,
+			ExpectedContent: []string{
+				`"id":"3f2888f8-075d-49fe-9d09-ea7e951000dc"`,
+			},
+			ExpectedEvents: map[string]int{
+				"OnModelBeforeTruncate":             1,
+				"OnModelAfterTruncate":              1,
+				"OnCollectionBeforeTruncateRequest": 1,
+				"OnCollectionAfterTruncateRequest":  1,
+			},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		scenario.Test(t)
+	}
+}
+
 func TestCollectionImport(t *testing.T) {
 	scenarios := []tests.ApiScenario{
 		{

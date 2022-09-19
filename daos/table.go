@@ -35,3 +35,10 @@ func (dao *Dao) DeleteTable(tableName string) error {
 
 	return err
 }
+
+// TruncateTable empties the specified table.
+func (dao *Dao) TruncateTable(tableName string) error {
+	_, err := dao.DB().TruncateTable(tableName).Execute()
+
+	return err
+}

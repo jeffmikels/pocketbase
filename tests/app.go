@@ -107,6 +107,16 @@ func NewTestApp(optTestDataDir ...string) (*TestApp, error) {
 		return nil
 	})
 
+	t.OnModelBeforeTruncate().Add(func(e *core.ModelEvent) error {
+		t.EventCalls["OnModelBeforeTruncate"]++
+		return nil
+	})
+
+	t.OnModelAfterTruncate().Add(func(e *core.ModelEvent) error {
+		t.EventCalls["OnModelAfterTruncate"]++
+		return nil
+	})
+
 	t.OnModelBeforeDelete().Add(func(e *core.ModelEvent) error {
 		t.EventCalls["OnModelBeforeDelete"]++
 		return nil

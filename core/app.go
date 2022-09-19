@@ -103,6 +103,14 @@ type App interface {
 	// existing entry in the DB.
 	OnModelAfterUpdate() *hook.Hook[*ModelEvent]
 
+	// OnModelBeforeTruncate hook is triggered before updating existing
+	// entry in the DB, allowing you to modify or validate the stored data.
+	OnModelBeforeTruncate() *hook.Hook[*ModelEvent]
+
+	// OnModelAfterTruncate hook is triggered after successfully updating
+	// existing entry in the DB.
+	OnModelAfterTruncate() *hook.Hook[*ModelEvent]
+
 	// OnModelBeforeDelete hook is triggered before deleting an
 	// existing entry from the DB.
 	OnModelBeforeDelete() *hook.Hook[*ModelEvent]
@@ -415,6 +423,17 @@ type App interface {
 	// OnCollectionAfterUpdateRequest hook is triggered after each
 	// successful API Collection update request.
 	OnCollectionAfterUpdateRequest() *hook.Hook[*CollectionUpdateEvent]
+
+	// OnCollectionBeforeTruncateRequest hook is triggered before each API Collection
+	// update request (after request data load and before model persistence).
+	//
+	// Could be used to additionally validate the request data or implement
+	// completely different persistence behavior (returning [hook.StopPropagation]).
+	OnCollectionBeforeTruncateRequest() *hook.Hook[*CollectionTruncateEvent]
+
+	// OnCollectionAfterTruncateRequest hook is triggered after each
+	// successful API Collection update request.
+	OnCollectionAfterTruncateRequest() *hook.Hook[*CollectionTruncateEvent]
 
 	// OnCollectionBeforeDeleteRequest hook is triggered before each API
 	// Collection delete request (after model load and before actual deletion).

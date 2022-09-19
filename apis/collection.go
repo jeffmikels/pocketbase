@@ -20,6 +20,7 @@ func BindCollectionApi(app core.App, rg *echo.Group) {
 	subGroup.POST("", api.create)
 	subGroup.GET("/:collection", api.view)
 	subGroup.PATCH("/:collection", api.update)
+	subGroup.PATCH("/:collection/truncate", api.truncate)
 	subGroup.DELETE("/:collection", api.delete)
 	subGroup.PUT("/import", api.bulkImport)
 }
@@ -141,6 +142,32 @@ func (api *collectionApi) update(c echo.Context) error {
 	}
 
 	return submitErr
+}
+
+func (api *collectionApi) truncate(c echo.Context) error {
+	collection, err := api.app.Dao().FindCollectionByNameOrId(c.PathParam("collection"))
+	if err != nil || collection == nil {
+		return rest.NewNotFoundError("", err)
+	}
+
+	event := &core.CollectionTruncateEvent{
+		HttpContext: c,
+		Collection:  collection,
+	}
+
+	handlerErr := api.app.OnCollectionBeforeTruncateRequest().Trigger(event, func(e *core.CollectionTruncateEvent) error {
+		if err := api.app.Dao().TruncateCollection(e.Collection); err != nil {
+			return rest.NewBadRequestError("Failed to empty collection. Make sure that the collection is not a system collection.", err)
+		}
+
+		return e.HttpContext.NoContent(http.StatusNoContent)
+	})
+
+	if handlerErr == nil {
+		api.app.OnCollectionAfterTruncateRequest().Trigger(event)
+	}
+
+	return handlerErr
 }
 
 func (api *collectionApi) delete(c echo.Context) error {

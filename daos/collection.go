@@ -105,6 +105,25 @@ func (dao *Dao) FindCollectionReferences(collection *models.Collection, excludeI
 	return result, nil
 }
 
+// TruncateCollection truncates the provided Collection model (deletes all records).
+//
+// NB! The collection cannot be truncated, if:
+// - is system collection (aka. collection.System is true)
+func (dao *Dao) TruncateCollection(collection *models.Collection) error {
+	if collection.System {
+		return fmt.Errorf("System collection %q cannot be deleted.", collection.Name)
+	}
+
+	return dao.RunInTransaction(func(txDao *Dao) error {
+		// delete the related records table
+		if err := txDao.TruncateTable(collection.Name); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 // DeleteCollection deletes the provided Collection model.
 // This method automatically deletes the related collection records table.
 //

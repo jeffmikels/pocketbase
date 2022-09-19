@@ -44,12 +44,14 @@ type BaseApp struct {
 	onBeforeServe *hook.Hook[*ServeEvent]
 
 	// dao event hooks
-	onModelBeforeCreate *hook.Hook[*ModelEvent]
-	onModelAfterCreate  *hook.Hook[*ModelEvent]
-	onModelBeforeUpdate *hook.Hook[*ModelEvent]
-	onModelAfterUpdate  *hook.Hook[*ModelEvent]
-	onModelBeforeDelete *hook.Hook[*ModelEvent]
-	onModelAfterDelete  *hook.Hook[*ModelEvent]
+	onModelBeforeCreate   *hook.Hook[*ModelEvent]
+	onModelAfterCreate    *hook.Hook[*ModelEvent]
+	onModelBeforeUpdate   *hook.Hook[*ModelEvent]
+	onModelAfterUpdate    *hook.Hook[*ModelEvent]
+	onModelBeforeTruncate *hook.Hook[*ModelEvent]
+	onModelAfterTruncate  *hook.Hook[*ModelEvent]
+	onModelBeforeDelete   *hook.Hook[*ModelEvent]
+	onModelAfterDelete    *hook.Hook[*ModelEvent]
 
 	// mailer event hooks
 	onMailerBeforeAdminResetPasswordSend *hook.Hook[*MailerAdminEvent]
@@ -110,16 +112,18 @@ type BaseApp struct {
 	onRecordAfterDeleteRequest  *hook.Hook[*RecordDeleteEvent]
 
 	// collection api event hooks
-	onCollectionsListRequest         *hook.Hook[*CollectionsListEvent]
-	onCollectionViewRequest          *hook.Hook[*CollectionViewEvent]
-	onCollectionBeforeCreateRequest  *hook.Hook[*CollectionCreateEvent]
-	onCollectionAfterCreateRequest   *hook.Hook[*CollectionCreateEvent]
-	onCollectionBeforeUpdateRequest  *hook.Hook[*CollectionUpdateEvent]
-	onCollectionAfterUpdateRequest   *hook.Hook[*CollectionUpdateEvent]
-	onCollectionBeforeDeleteRequest  *hook.Hook[*CollectionDeleteEvent]
-	onCollectionAfterDeleteRequest   *hook.Hook[*CollectionDeleteEvent]
-	onCollectionsBeforeImportRequest *hook.Hook[*CollectionsImportEvent]
-	onCollectionsAfterImportRequest  *hook.Hook[*CollectionsImportEvent]
+	onCollectionsListRequest          *hook.Hook[*CollectionsListEvent]
+	onCollectionViewRequest           *hook.Hook[*CollectionViewEvent]
+	onCollectionBeforeCreateRequest   *hook.Hook[*CollectionCreateEvent]
+	onCollectionAfterCreateRequest    *hook.Hook[*CollectionCreateEvent]
+	onCollectionBeforeUpdateRequest   *hook.Hook[*CollectionUpdateEvent]
+	onCollectionAfterUpdateRequest    *hook.Hook[*CollectionUpdateEvent]
+	onCollectionBeforeTruncateRequest *hook.Hook[*CollectionTruncateEvent]
+	onCollectionAfterTruncateRequest  *hook.Hook[*CollectionTruncateEvent]
+	onCollectionBeforeDeleteRequest   *hook.Hook[*CollectionDeleteEvent]
+	onCollectionAfterDeleteRequest    *hook.Hook[*CollectionDeleteEvent]
+	onCollectionsBeforeImportRequest  *hook.Hook[*CollectionsImportEvent]
+	onCollectionsAfterImportRequest   *hook.Hook[*CollectionsImportEvent]
 }
 
 // NewBaseApp creates and returns a new BaseApp instance
@@ -205,16 +209,18 @@ func NewBaseApp(dataDir string, encryptionEnv string, isDebug bool) *BaseApp {
 		onRecordAfterDeleteRequest:  &hook.Hook[*RecordDeleteEvent]{},
 
 		// collection API event hooks
-		onCollectionsListRequest:         &hook.Hook[*CollectionsListEvent]{},
-		onCollectionViewRequest:          &hook.Hook[*CollectionViewEvent]{},
-		onCollectionBeforeCreateRequest:  &hook.Hook[*CollectionCreateEvent]{},
-		onCollectionAfterCreateRequest:   &hook.Hook[*CollectionCreateEvent]{},
-		onCollectionBeforeUpdateRequest:  &hook.Hook[*CollectionUpdateEvent]{},
-		onCollectionAfterUpdateRequest:   &hook.Hook[*CollectionUpdateEvent]{},
-		onCollectionBeforeDeleteRequest:  &hook.Hook[*CollectionDeleteEvent]{},
-		onCollectionAfterDeleteRequest:   &hook.Hook[*CollectionDeleteEvent]{},
-		onCollectionsBeforeImportRequest: &hook.Hook[*CollectionsImportEvent]{},
-		onCollectionsAfterImportRequest:  &hook.Hook[*CollectionsImportEvent]{},
+		onCollectionsListRequest:          &hook.Hook[*CollectionsListEvent]{},
+		onCollectionViewRequest:           &hook.Hook[*CollectionViewEvent]{},
+		onCollectionBeforeCreateRequest:   &hook.Hook[*CollectionCreateEvent]{},
+		onCollectionAfterCreateRequest:    &hook.Hook[*CollectionCreateEvent]{},
+		onCollectionBeforeUpdateRequest:   &hook.Hook[*CollectionUpdateEvent]{},
+		onCollectionAfterUpdateRequest:    &hook.Hook[*CollectionUpdateEvent]{},
+		onCollectionBeforeTruncateRequest: &hook.Hook[*CollectionTruncateEvent]{},
+		onCollectionAfterTruncateRequest:  &hook.Hook[*CollectionTruncateEvent]{},
+		onCollectionBeforeDeleteRequest:   &hook.Hook[*CollectionDeleteEvent]{},
+		onCollectionAfterDeleteRequest:    &hook.Hook[*CollectionDeleteEvent]{},
+		onCollectionsBeforeImportRequest:  &hook.Hook[*CollectionsImportEvent]{},
+		onCollectionsAfterImportRequest:   &hook.Hook[*CollectionsImportEvent]{},
 	}
 
 	app.registerDefaultHooks()
@@ -447,6 +453,14 @@ func (app *BaseApp) OnModelBeforeUpdate() *hook.Hook[*ModelEvent] {
 
 func (app *BaseApp) OnModelAfterUpdate() *hook.Hook[*ModelEvent] {
 	return app.onModelAfterUpdate
+}
+
+func (app *BaseApp) OnModelBeforeTruncate() *hook.Hook[*ModelEvent] {
+	return app.onModelBeforeTruncate
+}
+
+func (app *BaseApp) OnModelAfterTruncate() *hook.Hook[*ModelEvent] {
+	return app.onModelAfterTruncate
 }
 
 func (app *BaseApp) OnModelBeforeDelete() *hook.Hook[*ModelEvent] {
@@ -687,6 +701,14 @@ func (app *BaseApp) OnCollectionBeforeUpdateRequest() *hook.Hook[*CollectionUpda
 
 func (app *BaseApp) OnCollectionAfterUpdateRequest() *hook.Hook[*CollectionUpdateEvent] {
 	return app.onCollectionAfterUpdateRequest
+}
+
+func (app *BaseApp) OnCollectionBeforeTruncateRequest() *hook.Hook[*CollectionTruncateEvent] {
+	return app.onCollectionBeforeTruncateRequest
+}
+
+func (app *BaseApp) OnCollectionAfterTruncateRequest() *hook.Hook[*CollectionTruncateEvent] {
+	return app.onCollectionAfterTruncateRequest
 }
 
 func (app *BaseApp) OnCollectionBeforeDeleteRequest() *hook.Hook[*CollectionDeleteEvent] {
